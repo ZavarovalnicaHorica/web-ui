@@ -1,83 +1,93 @@
-# ClaimDesk
+# Zavarovalnica Horica – web UI
 
-Internal web app for insurance company staff, built with Angular. Part of the
-[ZavarovalnicaOrg project](https://github.com/ZavarovalnicaOrg/insureflow-docs).
-
-Each insurance company (organisation) uses the same app. Staff sign in by choosing
-their organisation and entering their own username and password, and they only see
-their organisation's data.
+React + TypeScript web app for the Zavarovalnica Horica project (RSO 2026/27, group 3).
+Customers report damage and follow their claims; employees review the claims the agents
+could not decide on their own.
 
 > ⚠️ Prototype with fictional data only. It is not intended for real claims.
 
-## Roles
+## Users and screens
 
-| Role | Can do |
-|---|---|
-| Employee | Enter claims, see all claims of the organisation, decide reviews assigned to them |
-| Manager | Everything an employee can, plus the dashboard, the team list, and assigning reviews to employees |
+| Who | Route | What it does | Use case |
+|---|---|---|---|
+| Customer | `/my/policies` | Policies, validity, what they cover, limit and deductible | UC-1 |
+| Customer | `/my/claims/new` | Report a claim with amount, description and documents | UC-2, UC-3 |
+| Customer | `/my/claims`, `/my/claims/:id` | Claim status, history, messages from the reviewer, add documents | UC-3, UC-4 |
+| Employee | `/reviews` | Claims assigned to me: approve, reject or request more documents | UC-6 |
+| Employee | `/claims`, `/claims/:id` | All claims with agent results, risk score, documents and full history | UC-5, UC-8 |
+| Manager | `/dashboard` | Counts, reviews waiting for an assignee, team workload | |
+| Manager | `/team`, `/team/:id` | Staff and their open and decided reviews | |
+| Manager | `/history` | Every event on every claim, searchable | UC-8 |
+| Everyone | `/documents/:claimId?file=…` | View a claim document (mock mode) | |
 
-## Screens
+## How a claim is processed
 
-| Route | Who | What it does |
-|---|---|---|
-| `/login` | everyone | Choose organisation, sign in |
-| `/dashboard` | manager | Claim counts (total, need review, not assigned, approved, rejected), reviews waiting for an assignee, team workload |
-| `/team` | manager | All staff of the organisation with their open and completed reviews |
-| `/team/:id` | manager | One employee: assigned reviews and completed reviews |
-| `/reviews` | everyone | My reviews: approve or reject claims assigned to me |
-| `/claims` | everyone | All claims, filter by status, shows who reviews each one |
-| `/claims/new` | everyone | Enter a new claim (policy, amount, description, documents) |
-| `/claims/:id` | everyone | Claim details, risk score, each agent's result, assignment and review |
+The mock backend follows the project plan, so the UI behaves like the real system will:
+
+1. **ClaimsService** saves the claim (`claim.submitted.v1`) and **DocumentService** the documents (`document.added.v1`).
+2. **AgentService, agent 1** collects the claim, policy and documents and checks the policy is valid and covers the claim.
+3. **RiskService** applies fixed rules and returns a risk score from 0 to 1 with reasons.
+4. **AgentService, agent 2** writes a summary and a proposal (`claim.recommendation.created.v1`).
+5. A claim is approved automatically only with a valid policy, at least one document, an amount up to **300 €**
+   and a risk score up to **0.20**. Everything else goes to an employee (`review.requested.v1`).
+   The agents never reject a claim on their own; a proposed rejection also goes to an employee.
+6. **ReviewService**: a manager assigns the review, the employee approves, rejects or asks for more documents
+   (`review.completed.v1`).
+7. When the customer adds documents to a claim that waits for them, the agents check it again (UC-7).
+
+Every step is stored in the claim's history, with the event name, who did it and when.
 
 ## Run locally
 
-Needs Node.js 22 (LTS) or newer.
+Needs Node.js 22 or newer.
 
 ```bash
 npm install
-npm start
+npm run dev
 ```
 
-Open http://localhost:4200.
+Open http://localhost:5173.
+
+Other scripts: `npm run build` (type check and production build), `npm run typecheck`, `npm run preview`.
 
 ## Mock data vs. real services
 
-By default the UI uses fake in-browser data, so it works without any backend.
-Changes are kept until the browser tab is closed.
+By default the UI uses fake in-browser data, so it works without any backend. Changes are kept
+until the browser tab is closed. The login page lists the demo accounts (customers and staff) and
+their shared password; clicking a name fills in the form.
 
-There are two fictional organisations, each with one manager and a few employees.
-The login page lists the demo accounts and their shared password, and clicking a
-username fills the form. The accounts are defined in
-[`src/app/core/mock-data.ts`](src/app/core/mock-data.ts).
+| File | Contents |
+|---|---|
+| [`src/core/mock/mock-data.ts`](src/core/mock/mock-data.ts) | Demo accounts and policies |
+| [`src/core/mock/seed.ts`](src/core/mock/seed.ts) | Starting claims and what happened to them |
+| [`src/core/mock/engine.ts`](src/core/mock/engine.ts) | The processing rules: agents, risk score, reviews |
+| [`src/core/mock/mock-documents.ts`](src/core/mock/mock-documents.ts) | Fictional documents: accident statement, invoices, photos, lost-baggage report |
+| [`src/core/mock/mock-api.ts`](src/core/mock/mock-api.ts) | Fake backend with the same access rules as the real one |
 
-Some seeded claims have fictional documents you can open from the claim page: a European
-accident statement, damage photos, invoices and an airline lost-baggage report (PIR).
-They are defined in [`src/app/core/mock-documents.ts`](src/app/core/mock-documents.ts).
-Files added in the new-claim form only keep their name.
+Useful demo paths:
 
-The mock applies the same rules the agents are meant to use:
+- Sign in as **luka** and open CLM-2002: the reviewer asked for documents. Upload any file and the claim is checked again.
+- Sign in as **ana** and report a claim up to 300 € with a document: it is approved straight away.
+- Sign in as **marko** to decide CLM-2001 (the 1.200 € example from the project plan).
+- Sign in as **petra** (manager) to assign reviews and see the history.
 
-- a covered policy, small amount, with a document → approved automatically
-- no documents, or an amount above the policy limit → needs review
-- an inactive or unknown policy → rejected
+To use the real services, build with `VITE_USE_MOCK_API=false` (in a `.env` file or as a Docker build
+argument). The UI then sends the token as `Authorization: Bearer <token>` to the API Gateway:
 
-To use the real services, set `useMockApi: false` in
-[`src/app/core/settings.ts`](src/app/core/settings.ts). The UI then sends the
-login token as `Authorization: Bearer <token>` and calls these REST endpoints:
-
-| Method | Path | Purpose |
+| Method | Path | Service |
 |---|---|---|
-| GET | `/api/organisations` | Organisations for the login screen |
-| POST | `/api/auth/login` | `{ orgId, username, password }` → `{ token, user, organisation }` |
-| GET | `/api/users` | Staff of the signed-in organisation |
-| GET | `/api/claims` | Claims of the organisation |
-| GET | `/api/claims/:id` | One claim |
-| POST | `/api/claims` | New claim |
-| GET | `/api/policies` | Policies of the organisation |
-| PUT | `/api/reviews/:claimId/assignment` | Manager assigns a review `{ assigneeId, note }` |
-| POST | `/api/reviews/:claimId` | Reviewer decides `{ decision, comment }` |
+| POST | `/api/auth/login` | Keycloak (will be replaced by the OpenID Connect redirect) |
+| GET | `/api/policies` | PolicyService |
+| GET | `/api/claims`, `/api/claims/:id` | ClaimsService |
+| POST | `/api/claims` | ClaimsService |
+| GET | `/api/claims/history` | ClaimsService |
+| POST | `/api/documents/:claimId` | DocumentService |
+| GET | `/api/documents/:claimId/:name` | DocumentService |
+| GET | `/api/users?role=staff` | Keycloak / user directory |
+| PUT | `/api/reviews/:claimId/assignment` | ReviewService |
+| POST | `/api/reviews/:claimId/decision` | ReviewService |
 
-The request and response shapes are in [`src/app/core/models.ts`](src/app/core/models.ts).
+Request and response shapes are in [`src/core/models.ts`](src/core/models.ts).
 
 ## Docker
 
@@ -86,18 +96,20 @@ docker build -t web-ui:latest .
 docker run -p 8080:80 web-ui:latest
 ```
 
-## Kubernetes (kind)
+## Kubernetes
 
 ```bash
-kind load docker-image web-ui:latest
 kubectl apply -f k8s/web-ui.yaml
 ```
 
 ## Project structure
 
 ```
-src/app/
-├── core/        API client, mock backend, models, login session, guards
-├── pages/       one component per screen
-└── shared/      reusable parts (status badge, assign control, review form)
+src/
+├── core/          models, API client, session, formatting, helpers
+│   └── mock/      fake backend and fictional data
+├── components/    layout, route guard, badges, documents, review controls
+└── pages/
+    ├── customer/  customer view
+    └── staff/     employee and manager view
 ```
