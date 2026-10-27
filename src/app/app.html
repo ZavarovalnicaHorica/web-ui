@@ -1,0 +1,39 @@
+@if (session.user(); as user) {
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" routerLink="/">
+        <span class="logo logo-sm" aria-hidden="true">CD</span>
+        {{ appName }}
+      </a>
+      <nav>
+        @if (session.isManager()) {
+          <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+        }
+        <a routerLink="/reviews" routerLinkActive="active">My reviews</a>
+        <a routerLink="/claims" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Claims</a>
+        <a routerLink="/claims/new" routerLinkActive="active">New claim</a>
+        @if (session.isManager()) {
+          <a routerLink="/team" routerLinkActive="active">Team</a>
+        }
+      </nav>
+      <div class="who">
+        <div class="who-text">
+          <strong>{{ user.name }}</strong>
+          <span class="muted">{{ session.organisation()?.name }}</span>
+        </div>
+        <button class="btn btn-sm" type="button" (click)="logout()">Sign out</button>
+      </div>
+    </div>
+  </header>
+}
+
+@if (mock) {
+  <div class="banner">
+    Prototype with fictional data only. Not for real claims.
+    <span class="banner-tag">Mock data</span>
+  </div>
+}
+
+<main class="container">
+  <router-outlet />
+</main>

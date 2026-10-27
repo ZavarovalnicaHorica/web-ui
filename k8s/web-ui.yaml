@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-ui
+  labels:
+    app: web-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-ui
+  template:
+    metadata:
+      labels:
+        app: web-ui
+    spec:
+      containers:
+        - name: web-ui
+          image: web-ui:latest
+          # Image is loaded into kind with `kind load docker-image web-ui:latest`.
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-ui
+spec:
+  selector:
+    app: web-ui
+  ports:
+    - port: 80
+      targetPort: 80
