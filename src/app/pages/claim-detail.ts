@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { ClaimsApi } from '../core/claims-api';
 import { nameOf } from '../core/stats';
 import { SessionStore } from '../core/session';
+import { settings } from '../core/settings';
 import { AssignReview } from '../shared/assign-review';
 import { ReviewForm } from '../shared/review-form';
 import { StatusBadge } from '../shared/status-badge';
@@ -42,7 +43,19 @@ import { StatusBadge } from '../shared/status-badge';
             <dt>Entered by</dt>
             <dd>{{ name(c.createdById) }}, {{ c.createdAt | date: 'medium' }}</dd>
             <dt>Documents</dt>
-            <dd>{{ c.documents.length ? c.documents.join(', ') : 'None' }}</dd>
+            <dd>
+              @for (d of c.documents; track d) {
+                <div>
+                  @if (mock) {
+                    <a [routerLink]="['/claims', c.id, 'document']" [queryParams]="{ file: d }">{{ d }}</a>
+                  } @else {
+                    <a [href]="documentUrl(c.id, d)" target="_blank" rel="noopener">{{ d }}</a>
+                  }
+                </div>
+              } @empty {
+                None
+              }
+            </dd>
           </dl>
           <h3>Description</h3>
           <p>{{ c.description }}</p>
@@ -140,6 +153,13 @@ export class ClaimDetail {
     const me = this.session.user();
     return !!c && !!me && (c.assignment?.assigneeId === me.id || me.role === 'MANAGER');
   });
+
+  protected readonly mock = settings.useMockApi;
+
+  /** File download from documents-service (real backend only). */
+  protected documentUrl(claimId: string, name: string) {
+    return `${settings.apiUrl}/documents/${claimId}/${encodeURIComponent(name)}`;
+  }
 
   protected name(id: string | undefined) {
     return nameOf(this.users.value(), id);

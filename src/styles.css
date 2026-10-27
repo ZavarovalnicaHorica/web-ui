@@ -688,3 +688,142 @@ section {
     display: none;
   }
 }
+
+/* Document viewer: documents look like paper in both themes */
+
+.paper {
+  position: relative;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 40px 40px 32px;
+  background: #fdfdfb;
+  color: #1c2430;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  box-shadow: 0 2px 12px rgb(0 0 0 / 0.15);
+  overflow: hidden;
+}
+
+.paper .muted {
+  color: #5f6b7a;
+}
+
+.paper-ribbon {
+  margin: -40px -40px 24px;
+  padding: 6px 16px;
+  background: #fff3d6;
+  color: #8a5a00;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.paper-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #1c2430;
+  font-size: 0.85rem;
+  color: #5f6b7a;
+}
+
+.paper-head h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #1c2430;
+}
+
+.paper-issuer {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #1c2430;
+}
+
+.paper-fields {
+  font-size: 0.9rem;
+}
+
+.paper-fields dt {
+  color: #5f6b7a;
+}
+
+.paper-section {
+  margin: 24px 0 0;
+}
+
+.paper-section h3 {
+  margin: 0 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #dde2e8;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #5f6b7a;
+}
+
+.paper table th,
+.paper table td {
+  border-color: #dde2e8;
+  padding: 6px 8px;
+}
+
+.paper table th {
+  color: #5f6b7a;
+}
+
+.paper tfoot td {
+  border-bottom: none;
+}
+
+.paper-total td {
+  font-weight: 700;
+  border-top: 2px solid #1c2430;
+}
+
+.paper-signatures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  margin-top: 40px;
+}
+
+.signature {
+  flex: 1 1 200px;
+  padding-top: 6px;
+  border-top: 1px solid #1c2430;
+  font-size: 0.85rem;
+  color: #5f6b7a;
+}
+
+.photo {
+  margin: 0 0 20px;
+}
+
+.photo svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.photo figcaption {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #5f6b7a;
+}
+
+@media (max-width: 640px) {
+  .paper {
+    padding: 32px 16px 24px;
+  }
+
+  .paper-ribbon {
+    margin: -32px -16px 20px;
+  }
+}

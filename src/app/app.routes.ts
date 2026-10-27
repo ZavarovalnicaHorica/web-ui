@@ -4,6 +4,7 @@ import { ClaimDetail } from './pages/claim-detail';
 import { ClaimNew } from './pages/claim-new';
 import { ClaimsList } from './pages/claims-list';
 import { Dashboard } from './pages/dashboard';
+import { DocumentView } from './pages/document-view';
 import { EmployeeDetail } from './pages/employee-detail';
 import { Login } from './pages/login';
 import { MyReviews } from './pages/my-reviews';
@@ -20,6 +21,12 @@ export const routes: Routes = [
       { path: 'claims', component: ClaimsList, title: 'Claims · ClaimDesk' },
       { path: 'claims/new', component: ClaimNew, title: 'New claim · ClaimDesk' },
       { path: 'claims/:id', component: ClaimDetail, title: 'Claim · ClaimDesk' },
+      {
+        // File name goes in ?file=, because URLs ending in .pdf/.jpg are treated as static files.
+        path: 'claims/:id/document',
+        component: DocumentView,
+        title: 'Document · ClaimDesk',
+      },
       {
         path: '',
         canActivate: [managerGuard],

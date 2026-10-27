@@ -50,6 +50,11 @@ The login page lists the demo accounts and their shared password, and clicking a
 username fills the form. The accounts are defined in
 [`src/app/core/mock-data.ts`](src/app/core/mock-data.ts).
 
+Some seeded claims have fictional documents you can open from the claim page: a European
+accident statement, damage photos, invoices and an airline lost-baggage report (PIR).
+They are defined in [`src/app/core/mock-documents.ts`](src/app/core/mock-documents.ts).
+Files added in the new-claim form only keep their name.
+
 The mock applies the same rules the agents are meant to use:
 
 - a covered policy, small amount, with a document → approved automatically

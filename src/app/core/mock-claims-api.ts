@@ -7,7 +7,7 @@ import { AssignInput, Claim, LoginInput, NewClaim, ReviewInput, Session, User } 
 import { SessionStore } from './session';
 
 const LATENCY_MS = 250;
-const DB_KEY = 'claimdesk.mock-db';
+const DB_KEY = 'claimdesk.mock-db.v2';
 
 function fail(status: number, message: string) {
   return throwError(() => new HttpErrorResponse({ status, statusText: message, error: { message } }));

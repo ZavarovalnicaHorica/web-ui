@@ -130,7 +130,7 @@ export function seedClaims(): Claim[] {
     seed('CLM-2001', 'alfa', {
       policyNumber: 'POL-1001', claimant: 'Ana Novak', type: 'CAR', incidentDate: dateOnly(14), amount: 1200,
       description: 'Rear bumper damaged in a parking lot, other driver identified.',
-      documents: ['photo-bumper.jpg', 'police-report.pdf'],
+      documents: ['damage-photo-rear.jpg', 'european-accident-report.pdf'],
     }, { createdById: 'u-a2', createdDaysAgo: 13 }),
     seed('CLM-2002', 'alfa', {
       policyNumber: 'POL-1002', claimant: 'Luka Kovač', type: 'HOME', incidentDate: dateOnly(4), amount: 42000,
@@ -138,15 +138,15 @@ export function seedClaims(): Claim[] {
     }, { createdById: 'u-a3', createdDaysAgo: 3, assigned: ['u-a2', 'u-a1', 2, 'Large amount, call the client first.'] }),
     seed('CLM-2003', 'alfa', {
       policyNumber: 'POL-1004', claimant: 'Jan Zupan', type: 'HEALTH', incidentDate: dateOnly(12), amount: 800,
-      description: 'Physiotherapy sessions after a knee injury.', documents: ['invoice.pdf'],
+      description: 'Physiotherapy sessions after a knee injury.', documents: ['physiotherapy-invoice.pdf'],
     }, { createdById: 'u-a4', createdDaysAgo: 11 }),
     seed('CLM-2004', 'alfa', {
       policyNumber: 'POL-1003', claimant: 'Eva Horvat', type: 'TRAVEL', incidentDate: dateOnly(2), amount: 2900,
-      description: 'Lost luggage on a return flight, airline confirmed the loss.', documents: ['airline-confirmation.pdf'],
+      description: 'Lost luggage on a return flight, airline confirmed the loss.', documents: ['property-irregularity-report.pdf'],
     }, { createdById: 'u-a2', createdDaysAgo: 1 }),
     seed('CLM-2005', 'alfa', {
       policyNumber: 'POL-1001', claimant: 'Ana Novak', type: 'CAR', incidentDate: dateOnly(3), amount: 18000,
-      description: 'Car written off after hitting a deer on a regional road.', documents: ['photos.zip', 'tow-receipt.pdf'],
+      description: 'Car written off after hitting a deer on a regional road.', documents: ['damage-photo-front.jpg', 'towing-invoice.pdf'],
     }, { createdById: 'u-a3', createdDaysAgo: 2 }),
     seed('CLM-2006', 'alfa', {
       policyNumber: 'POL-1005', claimant: 'Tina Petek', type: 'HOME', incidentDate: dateOnly(6), amount: 3000,
@@ -176,7 +176,7 @@ export function seedClaims(): Claim[] {
     // Zavarovalnica Beta
     seed('CLM-3001', 'beta', {
       policyNumber: 'POL-2001', claimant: 'Gregor Rozman', type: 'CAR', incidentDate: dateOnly(5), amount: 900,
-      description: 'Windscreen cracked by a stone on the motorway.', documents: ['photo.jpg'],
+      description: 'Windscreen cracked by a stone on the motorway.', documents: ['windscreen-photo.jpg'],
     }, { createdById: 'u-b2', createdDaysAgo: 4 }),
     seed('CLM-3002', 'beta', {
       policyNumber: 'POL-2002', claimant: 'Urška Žagar', type: 'HOME', incidentDate: dateOnly(3), amount: 6000,
