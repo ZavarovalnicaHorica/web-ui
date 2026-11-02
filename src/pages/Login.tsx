@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Navigate, useNavigate } from 'react-router';
+import { Link, Navigate, useNavigate } from 'react-router';
 import { homeFor } from '../components/RequireRole';
 import { api } from '../core/client';
 import { DEMO_PASSWORD, USERS } from '../core/mock/mock-data';
@@ -11,7 +11,7 @@ import { errorText } from '../core/use-async';
 export function Login() {
   const session = useSession();
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -23,7 +23,7 @@ export function Login() {
     setBusy(true);
     setError('');
     try {
-      const s = await api.login(username, password);
+      const s = await api.login(email, password);
       startSession(s);
       navigate(homeFor(s.user), { replace: true });
     } catch (err) {
@@ -32,8 +32,8 @@ export function Login() {
     }
   }
 
-  function pick(name: string) {
-    setUsername(name);
+  function pick(address: string) {
+    setEmail(address);
     setPassword(DEMO_PASSWORD);
   }
 
@@ -52,8 +52,14 @@ export function Login() {
 
       <form className="card form" onSubmit={submit}>
         <label>
-          Username
-          <input value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" required />
+          Email
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="username"
+            required
+          />
         </label>
         <label>
           Password
@@ -73,9 +79,9 @@ export function Login() {
         <button className="btn btn-primary btn-block" type="submit" disabled={busy}>
           {busy ? 'Signing in…' : 'Sign in'}
         </button>
-        {!settings.useMockApi && (
-          <p className="muted small">In production this page hands over to Keycloak (OpenID Connect).</p>
-        )}
+        <p className="muted small">
+          No account yet? <Link to="/register">Create one</Link>
+        </p>
       </form>
 
       {settings.useMockApi && (
@@ -90,8 +96,8 @@ export function Login() {
               <ul>
                 {customers.map((u) => (
                   <li key={u.id}>
-                    <button type="button" className="link" onClick={() => pick(u.username)}>
-                      {u.username}
+                    <button type="button" className="link" onClick={() => pick(u.email)}>
+                      {u.email}
                     </button>{' '}
                     · {u.name}
                   </li>
@@ -103,8 +109,8 @@ export function Login() {
               <ul>
                 {staff.map((u) => (
                   <li key={u.id}>
-                    <button type="button" className="link" onClick={() => pick(u.username)}>
-                      {u.username}
+                    <button type="button" className="link" onClick={() => pick(u.email)}>
+                      {u.email}
                     </button>{' '}
                     · {u.name}
                     {u.role === 'MANAGER' && <span className="badge badge-neutral">Manager</span>}

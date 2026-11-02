@@ -3,21 +3,21 @@ import type { Policy, User } from '../models';
 /*
  * Fictional data for the prototype. Nobody here is a real person.
  * Every demo account uses DEMO_PASSWORD. Only the mock backend checks it;
- * the real system signs in through Keycloak.
+ * the real system signs in through auth-service.
  */
 export const DEMO_PASSWORD = 'demo1234';
 
 export const USERS: User[] = [
   // Customers
-  { id: 'c-ana', username: 'ana', name: 'Ana Novak', role: 'CUSTOMER' },
-  { id: 'c-luka', username: 'luka', name: 'Luka Kovač', role: 'CUSTOMER' },
-  { id: 'c-eva', username: 'eva', name: 'Eva Horvat', role: 'CUSTOMER' },
-  { id: 'c-jan', username: 'jan', name: 'Jan Zupan', role: 'CUSTOMER' },
+  { id: 'c-ana', email: 'ana@horica.test', name: 'Ana Novak', role: 'CUSTOMER' },
+  { id: 'c-luka', email: 'luka@horica.test', name: 'Luka Kovač', role: 'CUSTOMER' },
+  { id: 'c-eva', email: 'eva@horica.test', name: 'Eva Horvat', role: 'CUSTOMER' },
+  { id: 'c-jan', email: 'jan@horica.test', name: 'Jan Zupan', role: 'CUSTOMER' },
   // Staff
-  { id: 's-petra', username: 'petra', name: 'Petra Kos', role: 'MANAGER', title: 'Head of claims' },
-  { id: 's-marko', username: 'marko', name: 'Marko Vidmar', role: 'EMPLOYEE', title: 'Claims handler' },
-  { id: 's-nina', username: 'nina', name: 'Nina Mlakar', role: 'EMPLOYEE', title: 'Senior claims handler' },
-  { id: 's-tomaz', username: 'tomaz', name: 'Tomaž Golob', role: 'EMPLOYEE', title: 'Claims handler' },
+  { id: 's-petra', email: 'petra@horica.test', name: 'Petra Kos', role: 'MANAGER', title: 'Head of claims' },
+  { id: 's-marko', email: 'marko@horica.test', name: 'Marko Vidmar', role: 'EMPLOYEE', title: 'Claims handler' },
+  { id: 's-nina', email: 'nina@horica.test', name: 'Nina Mlakar', role: 'EMPLOYEE', title: 'Senior claims handler' },
+  { id: 's-tomaz', email: 'tomaz@horica.test', name: 'Tomaž Golob', role: 'EMPLOYEE', title: 'Claims handler' },
 ];
 
 const DAY = 86_400_000;

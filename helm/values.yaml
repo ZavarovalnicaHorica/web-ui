@@ -1,0 +1,28 @@
+# Default settings. values-dev.yaml / values-staging.yaml / values-prod.yaml override them,
+# and CI overrides image.repository and image.tag with --set.
+#
+# The image must be built with --build-arg VITE_USE_MOCK_API=false to call the real services.
+
+name: web-ui
+
+replicaCount: 1
+
+image:
+  repository: web-ui                # CI: <dockerhub-user>/horica-web-ui
+  tag: latest                       # CI: the commit SHA
+  pullPolicy: IfNotPresent
+
+port: 80
+
+route:
+  enabled: true
+  gateway: horica-gateway   # the Gateway in the same namespace
+  pathPrefix: /             # everything the other routes do not match
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    cpu: 100m
+    memory: 64Mi

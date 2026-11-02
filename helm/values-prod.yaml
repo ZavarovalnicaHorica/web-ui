@@ -1,0 +1,3 @@
+# AKS, namespace "prod": deployed by a manual workflow run, with the image already tested in staging.
+image:
+  pullPolicy: IfNotPresent

@@ -10,7 +10,8 @@ export type Role = 'CUSTOMER' | 'EMPLOYEE' | 'MANAGER';
 
 export interface User {
   id: string;
-  username: string;
+  /** Sign-in name. */
+  email: string;
   name: string;
   role: Role;
   /** Job title, staff only. */
@@ -20,6 +21,55 @@ export interface User {
 export interface Session {
   token: string;
   user: User;
+}
+
+// auth-service: request and response shapes, exactly as the service sends them
+
+/** Body of POST /auth/login. */
+export interface AuthLoginRequest {
+  email: string;
+  password: string;
+}
+
+/** Body of POST /auth/register. New accounts always get the CLIENT role. */
+export interface AuthRegisterRequest {
+  email: string;
+  /** 8 to 72 characters, checked by auth-service. */
+  password: string;
+}
+
+/** Password length rules of auth-service (RegisterRequest.java). */
+export const PASSWORD_RULES = { min: 8, max: 72 };
+
+/** Response of POST /auth/login. */
+export interface AuthTokenResponse {
+  accessToken: string;
+  tokenType: 'Bearer';
+  /** Seconds until the token expires. */
+  expiresIn: number;
+}
+
+export type AuthRole = 'CLIENT' | 'AGENT' | 'REVIEWER' | 'ADMIN';
+
+/** Response of GET /auth/me. */
+export interface AuthUserResponse {
+  id: string;
+  email: string;
+  role: AuthRole;
+  createdAt: string;
+}
+
+/** auth-service role → the UI role that decides which screens a user sees. */
+const ROLE_FROM_AUTH: Record<AuthRole, Role> = {
+  CLIENT: 'CUSTOMER',
+  AGENT: 'EMPLOYEE',
+  REVIEWER: 'EMPLOYEE',
+  ADMIN: 'MANAGER',
+};
+
+/** auth-service has no display name yet, so the part of the email before "@" is shown. */
+export function userFromAuth(u: AuthUserResponse): User {
+  return { id: u.id, email: u.email, name: u.email.split('@')[0], role: ROLE_FROM_AUTH[u.role] };
 }
 
 export const isStaff = (u: User | null | undefined) => u?.role === 'EMPLOYEE' || u?.role === 'MANAGER';

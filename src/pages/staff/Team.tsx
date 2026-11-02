@@ -27,7 +27,7 @@ export function Team() {
               <tr>
                 <th>Name</th>
                 <th>Title</th>
-                <th>Username</th>
+                <th>Email</th>
                 <th>Role</th>
                 <th className="num">Open reviews</th>
                 <th className="num">Approved</th>
@@ -41,7 +41,7 @@ export function Team() {
                     <Link to={`/team/${w.user.id}`}>{w.user.name}</Link>
                   </td>
                   <td>{w.user.title}</td>
-                  <td className="muted">{w.user.username}</td>
+                  <td className="muted">{w.user.email}</td>
                   <td>
                     <span className={`badge ${w.user.role === 'MANAGER' ? 'badge-neutral' : 'badge-good'}`}>
                       {w.user.role === 'MANAGER' ? 'Manager' : 'Employee'}
@@ -72,7 +72,7 @@ export function EmployeeDetail() {
 
   return (
     <>
-      <PageHead title={user?.name ?? 'Employee'} sub={user && `${user.title} · ${user.username}`}>
+      <PageHead title={user?.name ?? 'Employee'} sub={user && `${user.title} · ${user.email}`}>
         <Link className="btn" to="/team">
           Back to team
         </Link>

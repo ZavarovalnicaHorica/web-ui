@@ -1,0 +1,3 @@
+# AKS, namespace "staging": deployed automatically on every push to main.
+image:
+  pullPolicy: IfNotPresent   # tags are commit SHAs, so a tag never changes

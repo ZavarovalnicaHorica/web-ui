@@ -1,6 +1,6 @@
 import { ApiError, type Api } from '../api';
 import type { AssignInput, AuditEntry, Claim, NewClaim, ReviewInput, Session, User } from '../models';
-import { isStaff } from '../models';
+import { isStaff, PASSWORD_RULES } from '../models';
 import { getSession } from '../session';
 import { addDocuments, assignReview, createClaim, decideReview } from './engine';
 import { DEMO_PASSWORD, POLICIES, USERS } from './mock-data';
@@ -76,10 +76,30 @@ export class MockApi implements Api {
     return USERS.find((u) => u.id === id);
   }
 
-  async login(username: string, password: string): Promise<Session> {
-    const user = USERS.find((u) => u.username === username.trim().toLowerCase());
-    if (!user || password !== DEMO_PASSWORD) return fail(401, 'Wrong username or password.');
+  /** Accounts created with register() in this tab, with their own password. */
+  private registered: { user: User; password: string }[] = [];
+
+  async login(email: string, password: string): Promise<Session> {
+    const address = email.trim().toLowerCase();
+    const demo = USERS.find((u) => u.email === address);
+    const own = this.registered.find((r) => r.user.email === address);
+    const user = demo && password === DEMO_PASSWORD ? demo : own && password === own.password ? own.user : null;
+    if (!user) return fail(401, 'Invalid email or password');
     return wait({ token: `mock-token-${user.id}`, user }, LATENCY_MS * 2);
+  }
+
+  /** Same rules as auth-service: unique email, password 8 to 72 characters, role CUSTOMER. */
+  async register(email: string, password: string): Promise<void> {
+    const address = email.trim().toLowerCase();
+    if (password.length < PASSWORD_RULES.min || password.length > PASSWORD_RULES.max) {
+      return fail(400, 'Validation failed');
+    }
+    if (USERS.some((u) => u.email === address) || this.registered.some((r) => r.user.email === address)) {
+      return fail(409, `Email is already registered: ${address}`);
+    }
+    const user: User = { id: `c-${crypto.randomUUID()}`, email: address, name: address.split('@')[0], role: 'CUSTOMER' };
+    this.registered.push({ user, password });
+    return wait(undefined);
   }
 
   async listPolicies() {

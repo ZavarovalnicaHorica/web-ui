@@ -1,12 +1,17 @@
-import type {
-  AssignInput,
-  AuditEntry,
-  Claim,
-  NewClaim,
-  Policy,
-  ReviewInput,
-  Session,
-  User,
+import {
+  userFromAuth,
+  type AssignInput,
+  type AuditEntry,
+  type AuthLoginRequest,
+  type AuthRegisterRequest,
+  type AuthTokenResponse,
+  type AuthUserResponse,
+  type Claim,
+  type NewClaim,
+  type Policy,
+  type ReviewInput,
+  type Session,
+  type User,
 } from './models';
 import { getSession } from './session';
 import { settings } from './settings';
@@ -15,6 +20,8 @@ export class ApiError extends Error {
   constructor(
     readonly status: number,
     message: string,
+    /** Per-field validation messages, e.g. { password: "size must be between 8 and 72" }. */
+    readonly fieldErrors: Record<string, string> = {},
   ) {
     super(message);
   }
@@ -25,7 +32,9 @@ export class ApiError extends Error {
  * customers only get their own policies and claims, staff get everything.
  */
 export interface Api {
-  login(username: string, password: string): Promise<Session>;
+  login(email: string, password: string): Promise<Session>;
+  /** Creates a customer account. Sign in afterwards with login(). */
+  register(email: string, password: string): Promise<void>;
 
   listPolicies(): Promise<Policy[]>;
   listClaims(): Promise<Claim[]>;
@@ -45,8 +54,7 @@ export interface Api {
 
 /** Calls the services through the API Gateway. */
 export class HttpApi implements Api {
-  private async request<T>(method: string, path: string, body?: unknown): Promise<T> {
-    const token = getSession()?.token;
+  private async request<T>(method: string, path: string, body?: unknown, token = getSession()?.token): Promise<T> {
     const res = await fetch(`${settings.apiUrl}${path}`, {
       method,
       headers: {
@@ -56,14 +64,29 @@ export class HttpApi implements Api {
       body: body === undefined ? undefined : JSON.stringify(body),
     });
     if (!res.ok) {
+      // Spring services answer errors as "problem details": { status, title, detail }.
       const data = await res.json().catch(() => null);
-      throw new ApiError(res.status, data?.message ?? res.statusText);
+      throw new ApiError(res.status, data?.detail ?? data?.message ?? res.statusText, data?.errors ?? {});
     }
     return res.json() as Promise<T>;
   }
 
-  login(username: string, password: string) {
-    return this.request<Session>('POST', '/auth/login', { username, password });
+  /**
+   * auth-service login takes two calls:
+   * 1. POST /auth/login → the token
+   * 2. GET /auth/me with that token → who the user is (id, email, role)
+   */
+  async login(email: string, password: string): Promise<Session> {
+    const body: AuthLoginRequest = { email, password };
+    const { accessToken } = await this.request<AuthTokenResponse>('POST', '/auth/login', body);
+    const me = await this.request<AuthUserResponse>('GET', '/auth/me', undefined, accessToken);
+    return { token: accessToken, user: userFromAuth(me) };
+  }
+
+  /** POST /auth/register → 201 with the new user, 409 if the email is taken, 400 if a field is invalid. */
+  async register(email: string, password: string): Promise<void> {
+    const body: AuthRegisterRequest = { email, password };
+    await this.request<AuthUserResponse>('POST', '/auth/register', body);
   }
   listPolicies() {
     return this.request<Policy[]>('GET', '/policies');

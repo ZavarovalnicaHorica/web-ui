@@ -66,17 +66,31 @@ their shared password; clicking a name fills in the form.
 
 Useful demo paths:
 
-- Sign in as **luka** and open CLM-2002: the reviewer asked for documents. Upload any file and the claim is checked again.
-- Sign in as **ana** and report a claim up to 300 € with a document: it is approved straight away.
-- Sign in as **marko** to decide CLM-2001 (the 1.200 € example from the project plan).
-- Sign in as **petra** (manager) to assign reviews and see the history.
+- Sign in as **luka@horica.test** and open CLM-2002: the reviewer asked for documents. Upload any file and the claim is checked again.
+- Sign in as **ana@horica.test** and report a claim up to 300 € with a document: it is approved straight away.
+- Sign in as **marko@horica.test** to decide CLM-2001 (the 1.200 € example from the project plan).
+- Sign in as **petra@horica.test** (manager) to assign reviews and see the history.
+
+### Sign in through the real auth-service
+
+1. Start auth-service (it listens on http://localhost:8081).
+2. Run `npm run dev:auth` and open http://localhost:5173.
+3. Click **Create one** on the login page (`/register`), enter an email and a password (8 to 72
+   characters). The account is created and you are signed in straight away.
+
+The Vite dev server forwards `/api/auth/*` to auth-service (see `vite.config.ts`). New accounts get the
+`CLIENT` role, which the UI shows as a customer. Only register and login work this way so far: the other
+pages still need their services. In mock mode, `/register` creates an account that lasts until the tab
+is closed.
 
 To use the real services, build with `VITE_USE_MOCK_API=false` (in a `.env` file or as a Docker build
 argument). The UI then sends the token as `Authorization: Bearer <token>` to the API Gateway:
 
 | Method | Path | Service |
 |---|---|---|
-| POST | `/api/auth/login` | Keycloak (will be replaced by the OpenID Connect redirect) |
+| POST | `/api/auth/register` | auth-service: `{ email, password }` → `201` new user, `409` email taken, `400` invalid field |
+| POST | `/api/auth/login` | auth-service: `{ email, password }` → `{ accessToken, tokenType, expiresIn }` |
+| GET | `/api/auth/me` | auth-service: the signed-in user `{ id, email, role, createdAt }` |
 | GET | `/api/policies` | PolicyService |
 | GET | `/api/claims`, `/api/claims/:id` | ClaimsService |
 | POST | `/api/claims` | ClaimsService |

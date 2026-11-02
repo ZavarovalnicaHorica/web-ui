@@ -1,0 +1,4 @@
+# Local cluster (minikube / kind): image built and loaded locally.
+image:
+  repository: web-ui
+  tag: latest

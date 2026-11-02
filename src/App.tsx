@@ -7,6 +7,7 @@ import { MyPolicies } from './pages/customer/MyPolicies';
 import { NewClaim } from './pages/customer/NewClaim';
 import { DocumentView } from './pages/DocumentView';
 import { Login } from './pages/Login';
+import { Register } from './pages/Register';
 import { AuditLog } from './pages/staff/AuditLog';
 import { ClaimDetail } from './pages/staff/ClaimDetail';
 import { Claims } from './pages/staff/Claims';
@@ -20,6 +21,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomeRedirect /> },
       { path: 'login', element: <Login /> },
+      { path: 'register', element: <Register /> },
 
       // Customer view
       {
