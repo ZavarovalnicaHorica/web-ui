@@ -4,8 +4,8 @@
 #   manual run ("Run workflow" in the Actions tab) → deploy an existing image to prod
 #                           (waits for approval if the "prod" environment has required reviewers)
 #
-# Org secrets used: DOCKERHUB_USERNAME, DOCKERHUB_TOKEN, AZURE_CLIENT_ID, AZURE_TENANT_ID,
-# AZURE_SUBSCRIPTION_ID, AKS_RESOURCE_GROUP, AKS_CLUSTER_NAME.
+# Org secrets used: DOCKERHUB_USERNAME, DOCKERHUB_TOKEN, AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID.
+# Org variables used: AKS_RESOURCE_GROUP, AKS_CLUSTER_NAME.
 name: CI/CD
 
 on:
@@ -87,10 +87,11 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      - uses: azure/aks-set-context@v4
+      - id: aks
+        uses: azure/aks-set-context@v4
         with:
-          resource-group: ${{ secrets.AKS_RESOURCE_GROUP }}
-          cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
+          resource-group: ${{ vars.AKS_RESOURCE_GROUP }}
+          cluster-name: ${{ vars.AKS_CLUSTER_NAME }}
       - uses: azure/setup-helm@v4
         with:
           version: ${{ env.HELM_VERSION }}
@@ -102,7 +103,7 @@ jobs:
             --set image.tag="${{ github.sha }}" \
             --wait --rollback-on-failure --timeout 5m
       - name: Show what is running
-        if: always()
+        if: always() && steps.aks.outcome == 'success'
         run: kubectl get pods -n staging -l app="$RELEASE" -o wide; kubectl get httproute -n staging
 
   deploy-prod:
@@ -117,10 +118,11 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      - uses: azure/aks-set-context@v4
+      - id: aks
+        uses: azure/aks-set-context@v4
         with:
-          resource-group: ${{ secrets.AKS_RESOURCE_GROUP }}
-          cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
+          resource-group: ${{ vars.AKS_RESOURCE_GROUP }}
+          cluster-name: ${{ vars.AKS_CLUSTER_NAME }}
       - uses: azure/setup-helm@v4
         with:
           version: ${{ env.HELM_VERSION }}
@@ -134,5 +136,5 @@ jobs:
             --set image.tag="$TAG" \
             --wait --rollback-on-failure --timeout 5m
       - name: Show what is running
-        if: always()
+        if: always() && steps.aks.outcome == 'success'
         run: kubectl get pods -n prod -l app="$RELEASE" -o wide; kubectl get httproute -n prod
